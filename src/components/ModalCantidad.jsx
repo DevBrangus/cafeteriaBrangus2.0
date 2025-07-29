@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import Input from './Input'
 
-function ModalCantidad({
+function ModalCantidad ({
   mostrar,
   setMostrar,
   producto,
@@ -28,7 +28,7 @@ function ModalCantidad({
           <section className='bg-white rounded-2xl flex flex-col gap-4 w-[440px]'>
             <header className='flex items-center justify-between p-4 border-b border-slate-300'>
               <span>Confirmación</span>
-              <div className="rounded-full hover:bg-slate-200 transition-colors cursor-pointer p-1 grid place-content-center" onClick={() => setMostrar(false)}>
+              <div className='rounded-full hover:bg-slate-200 transition-colors cursor-pointer p-1 grid place-content-center' onClick={() => setMostrar(false)}>
                 <svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
                   <line x1='10' y1='10' x2='25' y2='25' stroke='#94a3b8' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
                   <line x1='10' y1='25' x2='25' y2='10' stroke='#94a3b8' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
@@ -39,7 +39,7 @@ function ModalCantidad({
             <article className='text-2xl text-center px-4'>
               <Input type='number' name='cantidad' defaultValue='1' min='1' referencia={inputRef} />
             </article>
-            
+
             <footer className='flex justify-between gap-4 px-4 pb-4 mt-4'>
               <button
                 type='submit'

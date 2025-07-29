@@ -4,6 +4,7 @@ export default function Input ({
   placeholder,
   defaultValue,
   min,
+  autoFocus,
   referencia,
   onBlur = () => { }
 }) {
@@ -17,6 +18,7 @@ export default function Input ({
       min={min}
       ref={referencia}
       onBlur={(e) => onBlur(e.target.value)}
+      autoFocus={autoFocus}
       autoComplete='none'
       className='w-full border-2 border-slate-700 p-2 rounded-lg outline-none focus:border-violet-500 transition-colors'
     />

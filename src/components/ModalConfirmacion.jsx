@@ -1,4 +1,4 @@
-export default function ModalConfirmacion({
+export default function ModalConfirmacion ({
   mostrar,
   setMostrar,
   mensaje,
@@ -11,8 +11,8 @@ export default function ModalConfirmacion({
           <section className='bg-white rounded-2xl flex flex-col gap-4 w-[440px]'>
             <header className='flex items-center justify-between p-4 border-b border-slate-300'>
               <span>Confirmación</span>
-              <div className="rounded-full hover:bg-slate-200 transition-colors cursor-pointer p-1 grid place-content-center" onClick={() => setMostrar(false)}>
-                <svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg' >
+              <div className='rounded-full hover:bg-slate-200 transition-colors cursor-pointer p-1 grid place-content-center' onClick={() => setMostrar(false)}>
+                <svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
                   <line x1='10' y1='10' x2='25' y2='25' stroke='#94a3b8' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
                   <line x1='10' y1='25' x2='25' y2='10' stroke='#94a3b8' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
                 </svg>
@@ -22,7 +22,7 @@ export default function ModalConfirmacion({
             <article className='text-2xl text-center px-4'>
               {mensaje && mensaje}
             </article>
-            
+
             <footer className='flex justify-between gap-4 px-4 pb-4 mt-4'>
               <button
                 type='button'

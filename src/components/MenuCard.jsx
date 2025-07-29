@@ -1,4 +1,4 @@
-function MenuCard({
+function MenuCard ({
   id,
   nombre,
   precio,

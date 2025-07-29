@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 
-function ProductoPedido({
+function ProductoPedido ({
   id,
   nombre,
   precio,
