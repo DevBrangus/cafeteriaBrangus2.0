@@ -20,7 +20,8 @@ function ModalCantidad ({
               producto.id,
               producto.nombre,
               producto.precio,
-              inputRef.current.value
+              inputRef.current.value,
+              (parseInt(producto.precio) * parseInt(inputRef.current.value))
             )
           }}
           className='absolute top-0 left-0 w-screen h-screen bg-[#000000aa] grid place-content-center'

@@ -39,13 +39,6 @@ function Pedidos () {
   // Estado para controlar la visibilidad del modal de confirmación al finalizar el pedido
   const [mostrarModalFinalizar, setMostrarModalFinalizar] = useState(false)
 
-  const { guardarPedido } = useGuardarPedido({
-    usuario: usuario.id,
-    total,
-    pedido,
-    toast
-  })
-
   // Función para salir de la vista de pedidos y volver a la selección de menús
   const salir = () => {
     setPedido([]) // Borra los productos del pedido antes de redireccionar
@@ -54,26 +47,33 @@ function Pedidos () {
   }
 
   // Función para añadir productos al pedido
-  const añadirProducto = (id, nombre, precio, cantidad) => {
+  const añadirProducto = (id, nombre, precio, cantidad, total) => {
+    const cantidadInt = parseInt(cantidad)
+    const precioInt = parseInt(precio)
+
     setPedido(prev => {
       const existe = prev.find(el => el.id === id)
 
+      // Si ya existe el producto en el pedido, añade la nueva cantidad y recalcula el total
       if (existe) {
-        // Si ya existe el producto en el pedido, sumamos la cantidad al producto existente
+        const nuevaCantidad = parseInt(existe.cantidad) + cantidadInt
+
         return prev.map(el =>
           el.id === id
-            ? { ...el, cantidad: parseInt(el.cantidad) + parseInt(cantidad) } // Convierte a entero para asegurar que la cantidad sea numerica
+            ? {
+                ...el,
+                cantidad: nuevaCantidad,
+                total: precioInt * nuevaCantidad
+              }
             : el
         )
       }
 
       // Si no existe, lo agregamos nuevo
-      return [...prev, { id, nombre, precio, cantidad }]
+      return [...prev, { id, nombre, precio: precioInt, cantidad: cantidadInt, total }]
     })
 
-    setTotal(prev => {
-      return prev + (precio * cantidad)
-    })
+    setTotal(prev => prev + (precioInt * cantidadInt))
 
     setMostrarModalCantidad({ mostrar: false, producto: null })
   }
@@ -82,13 +82,11 @@ function Pedidos () {
   const quitarProducto = (id) => {
     if (!pedido || pedido.length === 0) return
 
-    const idPedido = pedido.find(el => el.id === id).id
+    const productoAEliminar = pedido.find(el => el.id === id)
 
-    if (idPedido) {
-      setPedido(prev => {
-        const pedidoActualizado = prev.filter(el => el.id !== idPedido)
-        return pedidoActualizado
-      })
+    if (productoAEliminar) {
+      setPedido(prev => prev.filter(el => el.id !== productoAEliminar.id))
+      setTotal(prevTotal => parseInt(prevTotal) - parseInt(productoAEliminar.total))
     }
 
     setMostrarModalQuitar({
@@ -98,16 +96,20 @@ function Pedidos () {
     })
   }
 
-  const finalizarPedido = () => {
-    guardarPedido()
-    // setPedido([]) // Borra los productos del pedido antes de redireccionar
-    // setTotal(0) // Borra el precio total
-    // navigate('/')
-  }
+  // Servicio para registrar el pedido en l base de datos
+  const { guardarPedido } = useGuardarPedido({
+    usuario,
+    total,
+    pedido,
+    toast
+  })
+
   return (
     <>
       <ToastContainer />
       <main className='min-w-screen h-screen max-h-screen flex flex-col gap-4 overflow-hidden bg-slate-100 select-none pt-4 px-4'>
+
+        {/* Boton de ir atras, nombre del usuario y valor total del pedido */}
         <header className='w-full p-4 flex justify-between items-center bg-white shadow-xl/5 rounded-2xl'>
           <div className='flex items-center gap-10'>
             <button
@@ -116,21 +118,22 @@ function Pedidos () {
               className='py-3 px-6 font-semibold text-2xl bg-[#C60000] text-white rounded-xl cursor-pointer hover:bg-[#910000] transition-colors active:outline-2 active:outline-[#4d0000] flex gap-3'
             >
               <svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
-                <line x1='3' y1='16' x2='20' y2='16' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
+                <line x1='3' y1='16' x2='32' y2='16' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
                 <line x1='3' y1='16' x2='10' y2='22' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
                 <line x1='3' y1='16' x2='10' y2='10' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
               </svg>
-              <span>Atras</span>
+              <span className='hidden lg:inline'>Atras</span>
             </button>
 
-            <span className='text-[#C60000] font-bold text-4xl'>{usuario?.nombre}</span>
+            <span className='text-[#C60000] font-bold text-4xl hidden md:inline'>{usuario?.nombre}</span>
           </div>
           <p className='text-3xl font-bold text-[#26723B]'>El total de su pedido es: ${total}</p>
         </header>
 
         <section className='flex-1 flex gap-4 overflow-hidden pb-4'>
+          {/* Productos disponibles del menu */}
           <div className='flex-3 overflow-y-scroll scroll-smooth shadow-2xl rounded-2xl bg-white '>
-            <article className='grid grid-cols-4 grid-rows-[auto] auto-rows-auto gap-4 p-4'>
+            <article className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-rows-[auto] auto-rows-auto gap-4 p-4'>
               {/* Mapear peticion de menu */}
               {(productos && productos.length > 0) && productos.map(
                 ({ id, producto, valor, img }) => (
@@ -140,6 +143,7 @@ function Pedidos () {
             </article>
           </div>
 
+          {/* Información del pedido actual del usuario */}
           <aside className='flex-1 p-4 h-full flex flex-col justify-between gap-6 rounded-2xl shadow-xl bg-white'>
             <div className='flex flex-col gap-6 overflow-hidden'>
               <p className='text-[#C60000] text-center text-5xl font-semibold'>Su pedido</p>
@@ -168,9 +172,18 @@ function Pedidos () {
                     )
               }
             </div>
-            <button className='bg-[#26723B] p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-[#005f1b] transition-colors' onClick={() => setMostrarModalFinalizar(true)}>
+            <button
+              disabled={pedido.length <= 0}
+              className={
+                `p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-[#005f1b] transition-colors 
+                ${pedido.length <= 0
+                  ? 'bg-slate-400'
+                  : 'bg-[#26723B] hover:bg-[#005f1b]'}`
+              }
+              onClick={() => setMostrarModalFinalizar(true)}
+            >
               <Icon icon='material-symbols:save-rounded' width='32' className='text-white' />
-              <span className='text-white text-xl font-semibold'>Guardar pedido</span>
+              <span className='text-white text-2xl font-semibold'>Guardar pedido</span>
             </button>
           </aside>
         </section>
@@ -197,7 +210,11 @@ function Pedidos () {
         mostrar={mostrarModalFinalizar}
         setMostrar={setMostrarModalFinalizar}
         mensaje='¿Desea finalizar su pedido?'
-        accion={() => finalizarPedido()}
+        accion={() => {
+          setMostrarModalFinalizar(false)
+          guardarPedido()
+          salir()
+        }}
       />
     </>
   )
