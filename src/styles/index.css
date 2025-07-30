@@ -37,3 +37,23 @@ h1 {
   font-size  : 3.2em;
   line-height: 1.1;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE y Edge */
+  scrollbar-width   : none;
+  /* Firefox */
+}
+
+.error404 {
+  width              : 100dvw;
+  height             : 100dvh;
+  background-image   : url('../assets/error404.jpg');
+  background-position: left;
+  background-repeat  : no-repeat;
+  background-size    : contain;
+}

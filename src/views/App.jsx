@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import '../styles/App.css'
 import desayuno from '../assets/desayuno.jpg'
 import almuerzo from '../assets/almuerzo.jpg'
 import logo from '../assets/logo.png'
@@ -37,7 +36,7 @@ function App () {
         >
           <img src={almuerzo} alt='Imagen representativa de almuerzo' className='h-screen w-full object-cover transition-transform group-hover:scale-110' />
           <div className='absolute w-full h-full top-0 left-0 bg-[#000000aa] grid place-content-center'>
-            <span className='text-6xl font-bold text-white'>Almuerzo</span>
+            <span className='text-8xl font-bold text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)]'>Almuerzo</span>
           </div>
         </article>
 
@@ -47,7 +46,7 @@ function App () {
         >
           <img src={desayuno} alt='Imagen representativa de desayuno' className='h-screen w-full object-cover transition-transform group-hover:scale-110' />
           <div className='absolute w-full h-full top-0 left-0 bg-[#000000aa] grid place-content-center'>
-            <span className='text-6xl font-bold text-white'>Desayuno</span>
+            <span className='text-8xl font-bold text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)]'>Desayuno</span>
           </div>
         </article>
       </main>

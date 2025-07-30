@@ -16,9 +16,10 @@ function useAutenticar ({ menuId }) {
     try {
       const formData = new FormData(formRef.current)
 
-      const res = await fetch(URL, {
-        method: 'POST',
-        body: formData
+      const documento = formData.get('documento')
+
+      const res = await fetch(`${URL}&documento=${documento}`, {
+        method: 'GET'
       })
 
       const response = await res.json()
