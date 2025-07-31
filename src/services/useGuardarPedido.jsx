@@ -23,10 +23,10 @@ function useGuardarPedido ({ usuario, total, pedido, toast }) {
         totalPedido: String(producto.totalPedido)
       })),
       nombre: usuario.nombre,
-      documento: usuario.documento,
+      documento: usuario.documento.replace(/\d(?=\d{4})/g, '*'),
       fecha: fechaFormateada,
       consecutivo: datos[0]?.idPedido,
-      logoBase64 // o 'data:image/png;base64,...'
+      logoBase64
     }
 
     useGenerarTicketPDF(datosPDF)
@@ -34,6 +34,7 @@ function useGuardarPedido ({ usuario, total, pedido, toast }) {
 
   const guardarPedido = async () => {
     try {
+      // Añade los datos de la petición a un FormData para ser enviados
       const formData = new FormData()
 
       formData.append('usuario', usuario.id)

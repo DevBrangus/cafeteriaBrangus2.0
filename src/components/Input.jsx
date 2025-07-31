@@ -1,4 +1,4 @@
-export default function Input ({
+export default function Input({
   type,
   name,
   placeholder,
@@ -9,6 +9,14 @@ export default function Input ({
   onBlur = () => { },
   onChange = () => { }
 }) {
+  const handleInput = (e) => {
+    // Si el tipo es password y se requiere solo números
+    if (type === 'password') {
+      e.target.value = e.target.value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+    }
+    onChange(e.target.value); // Notifica el cambio limpio
+  };
+
   return (
     <input
       type={type}
@@ -19,10 +27,12 @@ export default function Input ({
       min={min}
       ref={referencia}
       onBlur={(e) => onBlur(e.target.value)}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={handleInput}
+      inputMode={type === 'password' ? 'numeric' : undefined}
+      pattern={type === 'password' ? '[0-9]*' : undefined}
       autoFocus={autoFocus}
-      autoComplete='none'
+      autoComplete='off'
       className='peer placeholder-transparent w-full border-2 border-slate-700 p-2 rounded-lg outline-none focus:border-violet-500 transition-colors'
     />
-  )
+  );
 }

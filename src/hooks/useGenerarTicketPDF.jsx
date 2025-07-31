@@ -14,7 +14,7 @@ export const useGenerarTicketPDF = (data) => {
   ]))
 
   const docDefinition = {
-    pageSize: { width: 140, height: 'auto' }, // 58mm aprox
+    pageSize: { width: 140, height: 600 }, // 58mm aprox
     pageMargins: [10, 10, 10, 10],
     content: [
       logoBase64 && {
