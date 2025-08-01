@@ -1,10 +1,9 @@
 import pdfMake from 'pdfmake/build/pdfmake'
 import * as pdfFonts from 'pdfmake/build/vfs_fonts'
 
-// Configura vfs correctamente
 pdfMake.vfs = pdfFonts.default?.vfs || pdfFonts.pdfMake?.vfs
 
-export const useGenerarTicketPDF = (data) => {
+export const useGenerarTicketPDF = (data, onFinish = () => { }) => {
   const { detalles, nombre, documento, fecha, consecutivo, logoBase64 } = data
 
   const rows = detalles.map((detalle) => ([
@@ -28,7 +27,10 @@ export const useGenerarTicketPDF = (data) => {
       { text: `Nombre: ${nombre}`, fontSize: 6 },
       { text: `Documento: ${documento}`, fontSize: 6 },
       { text: `Consecutivo: ${consecutivo}`, fontSize: 6, margin: [0, 0, 0, 5] },
-
+      {
+        canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 0.5 }],
+        margin: [0, 0, 0, 5]
+      },
       {
         table: {
           widths: [20, '*', 35],
@@ -44,7 +46,6 @@ export const useGenerarTicketPDF = (data) => {
         layout: 'noBorders',
         margin: [0, 0, 0, 5]
       },
-
       {
         columns: [
           { text: 'Total Ticket', fontSize: 8, bold: true, alignment: 'right' },
@@ -58,17 +59,14 @@ export const useGenerarTicketPDF = (data) => {
         ],
         margin: [0, 0, 0, 10]
       },
-
       {
-        canvas: [{ type: 'line', x1: 0, y1: 0, x2: 110, y2: 0, lineWidth: 0.5 }],
+        canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 0.5 }],
         margin: [0, 0, 0, 5]
       },
-
       { text: '¡Un placer atenderle!', alignment: 'center', fontSize: 5, bold: true }
     ]
   }
 
-  // Aquí usamos getBlob + iframe oculto
   pdfMake.createPdf(docDefinition).getBlob((blob) => {
     const blobUrl = URL.createObjectURL(blob)
     const iframe = document.createElement('iframe')
@@ -80,6 +78,7 @@ export const useGenerarTicketPDF = (data) => {
       setTimeout(() => {
         iframe.contentWindow.focus()
         iframe.contentWindow.print()
+        onFinish()
       }, 100) // delay para asegurar que cargue
     }
   })

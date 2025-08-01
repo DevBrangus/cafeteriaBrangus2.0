@@ -8,6 +8,7 @@ import ModalCantidad from '../components/ModalCantidad'
 import { ToastContainer, toast } from 'react-toastify'
 import useObtenerMenu from '../services/useObtenerMenu'
 import useGuardarPedido from '../services/useGuardarPedido'
+import Cargando from '../components/Cargando'
 
 function Pedidos () {
   // Hook de navegar entre las paginas
@@ -96,16 +97,23 @@ function Pedidos () {
     })
   }
 
+  // Estado para saber cuando esta cargando la pagina y mostrar la pantalla con el spinner
+  const [cargandoPDF, setCargandoPDF] = useState(false)
+
   // Servicio para registrar el pedido en l base de datos
   const { guardarPedido } = useGuardarPedido({
     usuario,
     total,
     pedido,
-    toast
+    toast,
+    setCargandoPDF,
+    salir
   })
 
   return (
     <>
+      {cargandoPDF && <Cargando />}
+
       <ToastContainer />
       <main className='min-w-screen h-screen max-h-screen flex flex-col gap-4 overflow-hidden bg-slate-100 select-none pt-4 px-4'>
 
@@ -172,6 +180,7 @@ function Pedidos () {
                     )
               }
             </div>
+
             <button
               disabled={pedido.length <= 0}
               className={
@@ -213,7 +222,6 @@ function Pedidos () {
         accion={() => {
           setMostrarModalFinalizar(false)
           guardarPedido()
-          salir()
         }}
       />
     </>

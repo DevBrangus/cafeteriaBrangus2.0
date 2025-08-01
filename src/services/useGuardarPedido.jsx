@@ -1,10 +1,12 @@
 import { useGenerarTicketPDF } from '../hooks/useGenerarTicketPDF'
 import { logoBase64 } from '../utils/logoBase64'
 
-function useGuardarPedido ({ usuario, total, pedido, toast }) {
+function useGuardarPedido ({ usuario, total, pedido, toast, setCargandoPDF, salir }) {
   const URL = 'https://carnesbrangus.com/casino2/pedidos/webserviceapp.php?case=1'
 
   const generarPDF = (datos) => {
+    setCargandoPDF(true)
+
     // Formatea la fecha actual al formato DD/MM/AAAA
     const hoy = new Date()
 
@@ -29,7 +31,10 @@ function useGuardarPedido ({ usuario, total, pedido, toast }) {
       logoBase64
     }
 
-    useGenerarTicketPDF(datosPDF)
+    useGenerarTicketPDF(datosPDF, () => {
+      setCargandoPDF(false)
+      setTimeout(() => salir(), 100)
+    }) // el callback indica que terminó
   }
 
   const guardarPedido = async () => {
