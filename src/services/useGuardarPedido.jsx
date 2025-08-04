@@ -46,6 +46,7 @@ function useGuardarPedido ({ usuario, total, pedido, toast, setCargandoPDF, sali
       formData.append('total', total)
       formData.append('detalle', JSON.stringify(pedido))
 
+      // Realiza la petición al servicio y espera una respuesta
       const res = await fetch(URL, {
         method: 'POST',
         body: formData
@@ -53,6 +54,8 @@ function useGuardarPedido ({ usuario, total, pedido, toast, setCargandoPDF, sali
 
       const response = await res.json()
 
+      // Si la respuesta es exitosa crea el ticket
+      // De lo contrario, muestra una notificación de error
       if (response.success) {
         generarPDF(response.data)
       }

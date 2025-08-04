@@ -6,12 +6,14 @@ pdfMake.vfs = pdfFonts.default?.vfs || pdfFonts.pdfMake?.vfs
 export const useGenerarTicketPDF = (data, onFinish = () => { }) => {
   const { detalles, nombre, documento, fecha, consecutivo, logoBase64 } = data
 
+  // Crea una fila para cada producto en el pedido del usuario
   const rows = detalles.map((detalle) => ([
     { text: detalle.cantidad, fontSize: 7, alignment: 'center' },
     { text: detalle.producto, fontSize: 7 },
     { text: `$ ${parseFloat(detalle.total).toLocaleString('es-CO')}`, fontSize: 7, alignment: 'right' }
   ]))
 
+  // Define el cuerpo del ticket
   const docDefinition = {
     pageSize: { width: 140, height: 600 }, // 58mm aprox
     pageMargins: [10, 10, 10, 10],
