@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+
 import MenuCard from '../components/MenuCard'
 import { Icon } from '@iconify/react'
-import { useState } from 'react'
 import ProductoPedido from '../components/ProductoPedido'
 import ModalConfirmacion from '../components/ModalConfirmacion'
 import ModalCantidad from '../components/ModalCantidad'
@@ -10,12 +11,23 @@ import useObtenerMenu from '../services/useObtenerMenu'
 import useGuardarPedido from '../services/useGuardarPedido'
 import Cargando from '../components/Cargando'
 
-function Pedidos () {
+function Pedidos() {
   // Hook de navegar entre las paginas
   const navigate = useNavigate()
   // Obtiene el id del menú seleccionado y el usuario autenticado desde la primera vista
   const location = useLocation()
-  const { menuId, usuario } = location.state || {}
+  const { menuId } = location.state || {}
+
+  const [usuario, setUsuario] = useState(location?.state?.usuario || null);
+
+  useEffect(() => {
+    if (!usuario) navigate(-1)
+  }, [])
+
+
+  useEffect(() => {
+    console.log(location.state)
+  }, [location])
 
   // Servicio para obtener todos los productos del menú seleccionado
   const { productos } = useObtenerMenu({ menuId, toast })
@@ -44,7 +56,8 @@ function Pedidos () {
   const salir = () => {
     setPedido([]) // Borra los productos del pedido antes de redireccionar
     setTotal(0) // Borra el precio total
-    navigate('/')
+    setUsuario(null);
+    navigate(-1)
   }
 
   // Función para añadir productos al pedido
@@ -62,10 +75,10 @@ function Pedidos () {
         return prev.map(el =>
           el.id === id
             ? {
-                ...el,
-                cantidad: nuevaCantidad,
-                total: precioInt * nuevaCantidad
-              }
+              ...el,
+              cantidad: nuevaCantidad,
+              total: precioInt * nuevaCantidad
+            }
             : el
         )
       }
@@ -171,13 +184,13 @@ function Pedidos () {
                         />
                       ))}
                     </div>
-                    )
+                  )
                   : (
                     <div className='w-full p-3 border-l-2 border-blue-700 bg-blue-100 flex items-center gap-3'>
                       <Icon icon='material-symbols:info-rounded' width='40' className='text-blue-700' />
                       <span className='text-blue-700 text-xl font-semibold'>Selecciona un producto para agregar al pedido</span>
                     </div>
-                    )
+                  )
               }
             </div>
 
