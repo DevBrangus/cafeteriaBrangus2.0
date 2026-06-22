@@ -24,11 +24,6 @@ function Pedidos() {
     if (!usuario) navigate(-1)
   }, [])
 
-
-  useEffect(() => {
-    console.log(location.state)
-  }, [location])
-
   // Servicio para obtener todos los productos del menú seleccionado
   const { productos } = useObtenerMenu({ menuId, toast })
 
