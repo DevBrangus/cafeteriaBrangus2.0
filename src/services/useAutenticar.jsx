@@ -31,6 +31,9 @@ function useAutenticar({ menuId }) {
         toast('Usuario validado exitosamente', {
           type: 'success'
         })
+
+        localStorage.setItem("usuario", JSON.stringify(response.data));
+
         navigate(
           '/pedido',
           {

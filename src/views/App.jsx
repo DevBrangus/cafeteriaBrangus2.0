@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import desayuno from '../assets/desayuno.jpg'
 import almuerzo from '../assets/almuerzo.jpg'
 import logo from '../assets/logo.png'
@@ -7,6 +7,10 @@ import useAutenticar from '../services/useAutenticar'
 import { toast, ToastContainer } from 'react-toastify'
 
 function App () {
+  useEffect(() => {
+    localStorage.removeItem("usuario");
+  }, [])
+
   // Estados para guardar el id del menú
   const [menuId, setMenuId] = useState(null)
   // Estado para controlar la visibilidad del modal para verificar el usuario
@@ -75,7 +79,7 @@ function App () {
                   htmlFor='documento'
                   className='
                     absolute ml-3 px-1 left-0 bg-white text-gray-500 text-sm transition-all duration-200
-                    peer-focus:top-[-8px] top-[-8px] peer-placeholder-shown:top-2.5
+                    peer-focus:-top-2 -top-2 peer-placeholder-shown:top-2.5
                     peer-placeholder-shown:text-base
                     peer-placeholder-shown:text-gray-500
                     peer-focus:text-sm peer-focus:text-violet-500

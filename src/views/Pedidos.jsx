@@ -18,11 +18,24 @@ function Pedidos() {
   const location = useLocation()
   const { menuId } = location.state || {}
 
-  const [usuario, setUsuario] = useState(location?.state?.usuario || null);
+  // const [usuario, setUsuario] = useState(location.state.usuario);
+
+  const [usuario, setUsuario] = useState(JSON.parse(localStorage.getItem("usuario")));
 
   useEffect(() => {
-    if (!usuario) navigate(-1)
+    const usuarioLocalStorage = JSON.parse(localStorage.getItem("usuario"));
+
+    const timer = setInterval(() => {
+      // console.log(usuarioLocalStorage);
+      if (!usuarioLocalStorage) navigate("/", { replace: true })
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, [])
+
+  // useEffect(() => {
+  //   if (!usuario) navigate("/", { replace: true })
+  // }, [usuario])
 
   // Servicio para obtener todos los productos del menú seleccionado
   const { productos } = useObtenerMenu({ menuId, toast })
@@ -52,7 +65,7 @@ function Pedidos() {
     setPedido([]) // Borra los productos del pedido antes de redireccionar
     setTotal(0) // Borra el precio total
     setUsuario(null);
-    navigate(-1)
+    navigate("/", { replace: true })
   }
 
   // Función para añadir productos al pedido
