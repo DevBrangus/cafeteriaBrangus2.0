@@ -1,19 +1,27 @@
+/*
+ * Estilos globales del Casino Brangus.
+ * Tailwind CSS v4: las clases de utilidad se usan directamente en los componentes.
+ */
 @import "tailwindcss";
 
-/* Paleta y tipografía del casino */
+/* Paleta y tipografía del casino.
+ * Cada variable --color-* crea clases de Tailwind con ese nombre
+ * (p. ej. --color-brangus -> bg-brangus, text-brangus, ring-brangus).
+ * La fuente Archivo se carga desde Google Fonts en index.html. */
 @theme {
   --font-sans: 'Archivo', system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  --color-brangus: #C60000;
-  --color-brangus-oscuro: #8F0000;
-  --color-tinta: #1B1714;
-  --color-suave: #5E5650;
-  --color-tenue: #8A817A;
-  --color-fondo: #F3F1EE;
-  --color-panel: #E6E1DC;
-  --color-linea: #E2DCD6;
+  --color-brangus: #C60000;        /* Rojo de la marca: botones principales y acentos */
+  --color-brangus-oscuro: #8F0000; /* Rojo al pasar el mouse */
+  --color-tinta: #1B1714;          /* Texto principal y fondos oscuros */
+  --color-suave: #5E5650;          /* Texto secundario */
+  --color-tenue: #8A817A;          /* Íconos discretos y botones deshabilitados */
+  --color-fondo: #F3F1EE;          /* Fondo general de las pantallas */
+  --color-panel: #E6E1DC;          /* Teclas secundarias y estados hover */
+  --color-linea: #E2DCD6;          /* Bordes y separadores */
 }
 
+/* Valores base del documento */
 :root {
   line-height: 1.5;
   font-weight: 400;
@@ -28,10 +36,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Color de las barras de desplazamiento */
 * {
   scrollbar-color: #8f8f8f transparent;
 }
 
+/* La app ocupa toda la pantalla del kiosco */
 body {
   margin    : 0;
   min-width : 320px;
@@ -46,17 +56,21 @@ body {
   text-transform: uppercase;
 }
 
-/* Alertas */
+/* Alertas (ver src/components/Alertas.jsx) */
+
+/* Entrada: baja y aparece */
 @keyframes alerta-entrada {
   from { opacity: 0; transform: translateY(-16px) scale(0.97); }
   to   { opacity: 1; transform: none; }
 }
 
+/* Salida: sube y se desvanece */
 @keyframes alerta-salida {
   from { opacity: 1; transform: none; }
   to   { opacity: 0; transform: translateY(-12px) scale(0.97); }
 }
 
+/* Barra de tiempo: se vacía desde --desde (fracción restante) hasta 0 */
 @keyframes alerta-barra {
   from { transform: scaleX(var(--desde, 1)); }
   to   { transform: scaleX(0); }
@@ -66,10 +80,12 @@ body {
 .alerta-salida  { animation: alerta-salida 250ms ease-in both; }
 .alerta-barra   { animation-name: alerta-barra; animation-timing-function: linear; animation-fill-mode: both; }
 
+/* Si el sistema pide menos movimiento, las alertas aparecen sin animación */
 @media (prefers-reduced-motion: reduce) {
   .alerta-entrada, .alerta-salida { animation-duration: 1ms; }
 }
 
+/* Oculta la barra de desplazamiento sin quitar el scroll (Chrome, Edge y Safari) */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -81,6 +97,7 @@ body {
   /* Firefox */
 }
 
+/* Imagen de fondo de la página 404 */
 .error404 {
   width              : 100dvw;
   height             : 100dvh;

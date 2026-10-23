@@ -1,12 +1,23 @@
-// src/hooks/useGenerarTicketHtml.js
-
+/**
+ * Alternativa a useGenerarTicketPDF: arma el ticket como una página HTML de
+ * 58 mm de ancho y la imprime en una ventana aparte.
+ *
+ * Nota: actualmente ningún archivo la usa; la impresión se hace con useGenerarTicketPDF.
+ * Aunque se llama "use...", no es un hook de React: es una función normal.
+ *
+ * @param {object} data - Mismos datos que useGenerarTicketPDF:
+ *   { detalles, nombre, documento, fecha, consecutivo, logoBase64 }
+ * @param {Window} printWindow - Ventana ya abierta (window.open) donde se escribe el ticket
+ */
 export const useGenerarTicketHtml = (data, printWindow) => {
   const { detalles, nombre, documento, fecha, consecutivo, logoBase64 } = data
 
+  // Formatea un valor como moneda colombiana: 14000 -> "$ 14.000"
   const formatoMoneda = (valor) => {
     return `$ ${parseFloat(valor || 0).toLocaleString('es-CO')}`
   }
 
+  // Escapa caracteres especiales para que el texto no se interprete como HTML
   const limpiarTexto = (texto) => {
     return String(texto ?? '')
       .replaceAll('&', '&amp;')
@@ -16,8 +27,10 @@ export const useGenerarTicketHtml = (data, printWindow) => {
       .replaceAll("'", '&#039;')
   }
 
+  // Total del pedido (viene repetido en cada detalle; se toma el del primero)
   const totalPedido = detalles[0]?.totalPedido || 0
 
+  // Una fila de la tabla por cada producto
   const filas = detalles.map((detalle) => `
     <tr>
       <td class="cantidad">${limpiarTexto(detalle.cantidad)}</td>
@@ -26,6 +39,8 @@ export const useGenerarTicketHtml = (data, printWindow) => {
     </tr>
   `).join('')
 
+  // Página completa del ticket: estilos para papel de 58 mm, datos, tabla y total.
+  // El script del final imprime al cargar y cierra la ventana después de imprimir.
   const html = `
     <!doctype html>
     <html>
@@ -193,7 +208,8 @@ export const useGenerarTicketHtml = (data, printWindow) => {
     </html>
   `
 
+  // Escribe la página en la ventana de impresión
   printWindow.document.open()
   printWindow.document.write(html)
   printWindow.document.close()
-}
+}

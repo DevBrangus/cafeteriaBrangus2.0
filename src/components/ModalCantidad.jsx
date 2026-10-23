@@ -1,3 +1,15 @@
+/**
+ * Ventana para escribir la cantidad de un producto antes de agregarlo al pedido.
+ *
+ * Nota: con el rediseño ya no se usa (las cantidades se manejan con los
+ * botones − / + de MenuCard). Se conserva por si se necesita de nuevo.
+ *
+ * @param {object} props
+ * @param {boolean} props.mostrar - Si la ventana está visible
+ * @param {Function} props.setMostrar - Setter para cerrarla
+ * @param {{ id: number, nombre: string, precio: number }} props.producto - Producto a agregar
+ * @param {Function} props.accion - Recibe (id, nombre, precio, cantidad, total) al aceptar
+ */
 import { useRef, useState } from 'react'
 import Input from './Input'
 
@@ -10,12 +22,14 @@ function ModalCantidad ({
   // Referencia al input para obtener la cantidad ingresada
   const inputRef = useRef(null)
 
+  // Cantidad escrita (se usa para habilitar o deshabilitar el botón Aceptar)
   const [cantidad, setCantidad] = useState('1')
 
   return (
     <>
       {mostrar && (
         <form
+          // Al aceptar, entrega los datos del producto con la cantidad y el total calculado
           onSubmit={(e) => {
             e.preventDefault()
             accion(
@@ -28,6 +42,7 @@ function ModalCantidad ({
           }}
           className='absolute top-0 left-0 w-screen h-screen bg-[#000000aa] grid place-content-center'
         >
+            {/* Encabezado con el nombre del producto y botón de cerrar */}
           <section className='bg-white rounded-xl flex flex-col gap-4 w-110'>
             <header className='flex items-center justify-between p-4 border-b border-slate-300'>
               <span>Cantidad de {producto.nombre} a pedir</span>
@@ -39,6 +54,7 @@ function ModalCantidad ({
               </div>
             </header>
 
+            {/* Campo de cantidad con etiqueta flotante */}
             <div className='text-2xl text-center px-4 relative'>
               <Input
                 type='number'
@@ -64,6 +80,7 @@ function ModalCantidad ({
               </label>
             </div>
 
+            {/* Botones Aceptar (deshabilitado si la cantidad no es válida) y Cancelar */}
             <footer className='flex justify-between gap-4 px-4 pb-4 mt-4'>
               <button
                 type='submit'

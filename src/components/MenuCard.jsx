@@ -1,3 +1,17 @@
+/**
+ * Tarjeta de un producto del menú (vista de pedido).
+ *
+ * Muestra foto, nombre y precio. Si el producto no está en el pedido muestra
+ * el botón "Agregar"; si ya está, muestra un contador rojo con − y +.
+ *
+ * @param {object} props
+ * @param {string} props.nombre - Nombre del producto
+ * @param {string|number} props.precio - Precio unitario
+ * @param {string} props.imagen - URL de la foto del producto
+ * @param {number} [props.cantidad=0] - Unidades de este producto en el pedido
+ * @param {Function} props.onAgregar - Suma una unidad al pedido
+ * @param {Function} props.onRestar - Resta una unidad del pedido
+ */
 import { Minus, Plus } from 'lucide-react'
 
 // Formatea un numero para añadir puntos de miles
@@ -11,6 +25,7 @@ function MenuCard ({
   onAgregar,
   onRestar
 }) {
+  // El producto ya está en el pedido (cambia el borde y muestra el contador)
   const enPedido = cantidad > 0
 
   return (
@@ -18,6 +33,7 @@ function MenuCard ({
       className={`flex flex-col rounded-xl overflow-hidden bg-white transition-shadow
         ${enPedido ? 'ring-3 ring-brangus' : 'ring-1 ring-linea'}`}
     >
+      {/* Foto del producto */}
       <img
         src={imagen}
         alt={`Imagen de ${nombre}`}
@@ -25,6 +41,7 @@ function MenuCard ({
       />
 
       <div className='flex-1 px-4 pt-3 pb-4 xl:px-4.5 xl:pt-4 xl:pb-4.5 flex flex-col justify-between gap-3'>
+        {/* Nombre y precio */}
         <div className='flex flex-col gap-1'>
           <span className='text-xl xl:text-[22px] font-bold leading-tight'>{nombre}</span>
           <span className='text-lg xl:text-xl font-semibold text-suave'>${formatPrecio(precio)}</span>
@@ -32,6 +49,7 @@ function MenuCard ({
 
         {enPedido
           ? (
+            // Contador: − cantidad +
             <div className='h-13 xl:h-14 px-1.5 rounded-xl bg-brangus text-white flex items-center justify-between'>
               <button
                 type='button'
@@ -53,6 +71,7 @@ function MenuCard ({
             </div>
             )
           : (
+            // Botón para agregar la primera unidad
             <button
               type='button'
               onClick={onAgregar}
