@@ -4,44 +4,40 @@ export default function ModalConfirmacion ({
   mensaje,
   accion
 }) {
+  if (!mostrar) return null
+
   return (
-    <>
-      {mostrar && (
-        <div className='absolute top-0 left-0 w-screen h-screen bg-[#000000aa] grid place-content-center'>
-          <section className='bg-white rounded-2xl flex flex-col gap-4 w-[440px]'>
-            <header className='flex items-center justify-between p-4 border-b border-slate-300'>
-              <span>Confirmación</span>
-              <div className='rounded-full hover:bg-slate-200 transition-colors cursor-pointer p-1 grid place-content-center' onClick={() => setMostrar(false)}>
-                <svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
-                  <line x1='9' y1='9' x2='23' y2='23' stroke='#565F6B' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
-                  <line x1='9' y1='23' x2='23' y2='9' stroke='#565F6B' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
-                </svg>
-              </div>
-            </header>
-
-            <article className='text-2xl text-center px-4'>
-              {mensaje && mensaje}
-            </article>
-
-            <footer className='flex justify-between gap-4 px-4 pb-4 mt-4'>
-              <button
-                type='button'
-                className='flex-1 py-2 bg-[#26723B] text-white text-2xl font-semibold rounded-xl cursor-pointer hover:bg-[#005f1b] transition-colors'
-                onClick={accion}
-              >
-                Si
-              </button>
-              <button
-                type='button'
-                className='flex-1 py-2 bg-[#C60000] text-white text-2xl font-semibold rounded-xl cursor-pointer hover:bg-[#910000] transition-colors'
-                onClick={() => setMostrar(false)}
-              >
-                No
-              </button>
-            </footer>
-          </section>
+    <div className='fixed inset-0 z-40 bg-tinta/60 grid place-content-center p-6 select-none'>
+      <section
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='modal-confirmacion-mensaje'
+        className='w-120 max-w-full bg-white rounded-2xl p-5 flex flex-col gap-8 text-tinta'
+      >
+        <div className='flex flex-col gap-3'>
+          <span className='text-sm font-bold tracking-[0.18em] uppercase text-brangus'>Confirmación</span>
+          <p id='modal-confirmacion-mensaje' className='text-[28px] font-bold leading-tight'>
+            {mensaje}
+          </p>
         </div>
-      )}
-    </>
+
+        <footer className='grid grid-cols-2 gap-3'>
+          <button
+            type='button'
+            className='h-16 rounded-xl border-2 border-tinta bg-white text-xl font-bold cursor-pointer hover:bg-fondo transition-colors'
+            onClick={() => setMostrar(false)}
+          >
+            No
+          </button>
+          <button
+            type='button'
+            className='h-16 rounded-xl bg-brangus text-white text-xl font-bold cursor-pointer hover:bg-brangus-oscuro transition-colors'
+            onClick={accion}
+          >
+            Sí
+          </button>
+        </footer>
+      </section>
+    </div>
   )
 }

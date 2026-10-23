@@ -5,9 +5,11 @@ import App from './views/App.jsx'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Pedidos from './views/Pedidos.jsx'
 import Error404 from './views/error404.jsx'
+import Alertas from './components/Alertas.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <Alertas />
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<App />} />

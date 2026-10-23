@@ -1,8 +1,8 @@
 import { useGenerarTicketPDF } from '../hooks/useGenerarTicketPDF'
 import { logoBase64 } from '../utils/logoBase64'
 
-function useGuardarPedido ({ usuario, total, pedido, toast, setCargandoPDF, salir }) {
-  const URL = 'https://carnesbrangus.com/casino2/pedidos/webserviceapp.php?case=1'
+function useGuardarPedido ({ usuario, total, pedido, toast, setCargandoPDF, salir, alTerminar }) {
+  const URL = 'https://carnesbrangus.com/casino/pedidos/webserviceapp.php?case=1'
 
   const generarPDF = (datos) => {
     setCargandoPDF(true)
@@ -33,7 +33,10 @@ function useGuardarPedido ({ usuario, total, pedido, toast, setCargandoPDF, sali
 
     useGenerarTicketPDF(datosPDF, () => {
       setCargandoPDF(false)
-      setTimeout(() => salir(), 100)
+      // Si la vista quiere mostrar la confirmación, le entrega los datos del ticket;
+      // de lo contrario vuelve al inicio como antes
+      if (alTerminar) alTerminar(datosPDF)
+      else setTimeout(() => salir(), 100)
     }) // el callback indica que terminó
   }
 

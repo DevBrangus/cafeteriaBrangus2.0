@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 function useObtenerMenu({ menuId, toast }) {
   const [productos, setProductos] = useState([])
 
-  const URL = 'https://carnesbrangus.com/casino2/productos/webserviceapp.php?case=1'
+  const URL = 'https://carnesbrangus.com/casino/productos/webserviceapp.php?case=1'
 
   const obtenerMenu = async () => {
     try {

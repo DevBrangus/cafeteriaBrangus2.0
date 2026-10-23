@@ -1,48 +1,52 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { ArrowLeft, ArrowRight, Info } from 'lucide-react'
 
+import logo from '../assets/logo.png'
 import MenuCard from '../components/MenuCard'
-import { Icon } from '@iconify/react'
 import ProductoPedido from '../components/ProductoPedido'
 import ModalConfirmacion from '../components/ModalConfirmacion'
-import ModalCantidad from '../components/ModalCantidad'
-import { ToastContainer, toast } from 'react-toastify'
+import PedidoRegistrado from '../components/PedidoRegistrado'
+import { toast } from '../utils/alertas'
 import useObtenerMenu from '../services/useObtenerMenu'
 import useGuardarPedido from '../services/useGuardarPedido'
 import Cargando from '../components/Cargando'
 
-function Pedidos() {
+const NOMBRES_MENU = { 1: 'Desayuno', 2: 'Almuerzo' }
+
+// Formatea un numero para añadir puntos de miles
+const formatPrecio = (precio) => Number(precio).toLocaleString('es-CO')
+
+// Iniciales del usuario para el avatar (máximo 2 letras)
+const iniciales = (nombre = '') =>
+  nombre.trim().split(/\s+/).slice(0, 2).map(p => p[0]).join('').toUpperCase()
+
+function Pedidos () {
   // Hook de navegar entre las paginas
   const navigate = useNavigate()
-  // Obtiene el id del menú seleccionado y el usuario autenticado desde la primera vista
+  // Obtiene el id del menú seleccionado desde la primera vista
   const location = useLocation()
   const { menuId } = location.state || {}
 
-  // const [usuario, setUsuario] = useState(location.state.usuario);
-
-  const [usuario, setUsuario] = useState(JSON.parse(localStorage.getItem("usuario")));
+  const [usuario, setUsuario] = useState(JSON.parse(sessionStorage.getItem('usuario')))
 
   useEffect(() => {
-    const usuarioLocalStorage = JSON.parse(localStorage.getItem("usuario"));
+    const usuarioSessionStorage = JSON.parse(sessionStorage.getItem('usuario'))
 
     const timer = setInterval(() => {
-      // console.log(usuarioLocalStorage);
-      if (!usuarioLocalStorage) navigate("/", { replace: true })
-    }, 1000);
+      if (!usuarioSessionStorage) navigate('/', { replace: true })
+    }, 1000)
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer)
   }, [])
-
-  // useEffect(() => {
-  //   if (!usuario) navigate("/", { replace: true })
-  // }, [usuario])
 
   // Servicio para obtener todos los productos del menú seleccionado
   const { productos } = useObtenerMenu({ menuId, toast })
 
-  // Estado para controlar los productos que se añadan al pedido
+  // Productos añadidos al pedido: { id, nombre, precio, cantidad, total }
   const [pedido, setPedido] = useState([])
-  const [total, setTotal] = useState(0)
+  const total = pedido.reduce((suma, el) => suma + el.total, 0)
+  const unidades = pedido.reduce((suma, el) => suma + el.cantidad, 0)
 
   // Estado para controlar la visibilidad del modal de confirmación al quitar un producto del menú
   const [mostrarModalQuitar, setMostrarModalQuitar] = useState({
@@ -51,65 +55,51 @@ function Pedidos() {
     productoNombre: null
   })
 
-  // Estado para controlar la visibilidad del modal de cantidad al añadir un producto al pedido
-  const [mostrarModalCantidad, setMostrarModalCantidad] = useState({
-    mostrar: false,
-    producto: null
-  })
-
   // Estado para controlar la visibilidad del modal de confirmación al finalizar el pedido
   const [mostrarModalFinalizar, setMostrarModalFinalizar] = useState(false)
 
+  // Datos del ticket una vez registrado el pedido (muestra la pantalla de confirmación)
+  const [ticket, setTicket] = useState(null)
+
   // Función para salir de la vista de pedidos y volver a la selección de menús
   const salir = () => {
-    setPedido([]) // Borra los productos del pedido antes de redireccionar
-    setTotal(0) // Borra el precio total
-    setUsuario(null);
-    navigate("/", { replace: true })
+    setPedido([])
+    setTicket(null)
+    setUsuario(null)
+    navigate('/', { replace: true })
   }
 
-  // Función para añadir productos al pedido
-  const añadirProducto = (id, nombre, precio, cantidad, total) => {
-    const cantidadInt = parseInt(cantidad)
-    const precioInt = parseInt(precio)
+  // Suma una unidad del producto al pedido
+  const agregarProducto = ({ id, producto, valor }) => {
+    const precio = parseInt(valor)
 
     setPedido(prev => {
       const existe = prev.find(el => el.id === id)
 
-      // Si ya existe el producto en el pedido, añade la nueva cantidad y recalcula el total
       if (existe) {
-        const nuevaCantidad = parseInt(existe.cantidad) + cantidadInt
-
         return prev.map(el =>
           el.id === id
-            ? {
-              ...el,
-              cantidad: nuevaCantidad,
-              total: precioInt * nuevaCantidad
-            }
+            ? { ...el, cantidad: el.cantidad + 1, total: precio * (el.cantidad + 1) }
             : el
         )
       }
 
-      // Si no existe, lo agregamos nuevo
-      return [...prev, { id, nombre, precio: precioInt, cantidad: cantidadInt, total }]
+      return [...prev, { id, nombre: producto, precio, cantidad: 1, total: precio }]
     })
-
-    setTotal(prev => prev + (precioInt * cantidadInt))
-
-    setMostrarModalCantidad({ mostrar: false, producto: null })
   }
 
-  // Función para quitar productos del pedido
+  // Resta una unidad; si llega a cero, lo quita del pedido
+  const restarProducto = (id) => {
+    setPedido(prev => prev.flatMap(el => {
+      if (el.id !== id) return [el]
+      if (el.cantidad <= 1) return []
+      return [{ ...el, cantidad: el.cantidad - 1, total: el.precio * (el.cantidad - 1) }]
+    }))
+  }
+
+  // Quita el producto completo del pedido
   const quitarProducto = (id) => {
-    if (!pedido || pedido.length === 0) return
-
-    const productoAEliminar = pedido.find(el => el.id === id)
-
-    if (productoAEliminar) {
-      setPedido(prev => prev.filter(el => el.id !== productoAEliminar.id))
-      setTotal(prevTotal => parseInt(prevTotal) - parseInt(productoAEliminar.total))
-    }
+    setPedido(prev => prev.filter(el => el.id !== id))
 
     setMostrarModalQuitar({
       mostrar: false,
@@ -121,125 +111,147 @@ function Pedidos() {
   // Estado para saber cuando esta cargando la pagina y mostrar la pantalla con el spinner
   const [cargandoPDF, setCargandoPDF] = useState(false)
 
-  // Servicio para registrar el pedido en l base de datos
+  // Servicio para registrar el pedido en la base de datos
   const { guardarPedido } = useGuardarPedido({
     usuario,
     total,
     pedido,
     toast,
     setCargandoPDF,
-    salir
+    salir,
+    alTerminar: setTicket
   })
+
+  if (ticket) return <PedidoRegistrado ticket={ticket} onVolver={salir} />
 
   return (
     <>
       {cargandoPDF && <Cargando />}
 
-      <ToastContainer />
-      <main className='min-w-screen h-screen max-h-screen flex flex-col gap-4 overflow-hidden bg-slate-100 select-none pt-4 px-4'>
+      <main className='w-full h-dvh flex flex-col bg-fondo text-tinta select-none overflow-hidden'>
 
-        {/* Boton de ir atras, nombre del usuario y valor total del pedido */}
-        <header className='w-full p-4 flex justify-between items-center bg-white shadow-xl/5 rounded-2xl'>
-          <div className='flex items-center gap-10'>
+        {/* Botón de salir, menú elegido y usuario */}
+        <header className='h-20 xl:h-26 shrink-0 px-5 xl:px-8 flex items-center justify-between gap-4 bg-white border-b border-linea'>
+          <div className='flex items-center gap-4 xl:gap-6'>
             <button
               type='button'
               onClick={salir}
-              className='py-3 px-6 font-semibold text-2xl bg-[#C60000] text-white rounded-xl cursor-pointer hover:bg-[#910000] transition-colors active:outline-2 active:outline-[#4d0000] flex gap-3'
+              aria-label='Salir y volver al inicio'
+              className='w-13 h-13 xl:w-15 xl:h-15 rounded-full bg-fondo grid place-content-center cursor-pointer hover:bg-panel transition-colors'
             >
-              <svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
-                <line x1='3' y1='16' x2='32' y2='16' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
-                <line x1='3' y1='16' x2='10' y2='22' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
-                <line x1='3' y1='16' x2='10' y2='10' stroke='white' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' />
-              </svg>
-              <span className='hidden lg:inline'>Atras</span>
+              <ArrowLeft size={24} strokeWidth={2.4} aria-hidden='true' />
             </button>
-
-            <span className='text-[#C60000] font-bold text-4xl hidden md:inline'>{usuario?.nombre}</span>
+            <img src={logo} alt='Brangus' className='h-11 xl:h-13 w-auto' />
+            {NOMBRES_MENU[menuId] && (
+              <span className='px-3.5 py-1.5 rounded-full bg-tinta text-white text-sm xl:text-base font-bold tracking-[0.12em] uppercase'>
+                {NOMBRES_MENU[menuId]}
+              </span>
+            )}
           </div>
-          <p className='text-3xl font-bold text-[#26723B]'>El total de su pedido es: ${total}</p>
+
+          <div className='flex items-center gap-3.5'>
+            <div className='flex flex-col items-end min-w-0'>
+              <span className='text-sm text-suave'>Pedido a nombre de</span>
+              <span className='text-lg xl:text-[22px] font-bold truncate max-w-[320px]'>{usuario?.nombre}</span>
+            </div>
+            <span className='w-12 h-12 xl:w-13 xl:h-13 shrink-0 rounded-full bg-brangus text-white grid place-content-center text-lg xl:text-xl font-extrabold'>
+              {iniciales(usuario?.nombre)}
+            </span>
+          </div>
         </header>
 
-        <section className='flex-1 flex gap-4 overflow-hidden pb-4'>
-          {/* Productos disponibles del menu */}
-          <div className='flex-3 overflow-y-scroll scroll-smooth shadow-2xl rounded-2xl bg-white '>
-            <article className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-rows-[auto] auto-rows-auto gap-4 p-4'>
-              {/* Mapear peticion de menu */}
-              {(productos && productos.length > 0) && productos.map(
-                ({ id, producto, valor, img }) => (
-                  <MenuCard key={id} id={id} nombre={producto} precio={valor} imagen={img} modalCantidad={setMostrarModalCantidad} />
-                )
-              )}
-            </article>
-          </div>
-
-          {/* Información del pedido actual del usuario */}
-          <aside className='flex-1 p-4 h-full flex flex-col justify-between gap-6 rounded-2xl shadow-xl bg-white'>
-            <div className='flex flex-col gap-6 overflow-hidden'>
-              <p className='text-[#C60000] text-center text-5xl font-semibold'>Su pedido</p>
-
-              {
-                pedido?.length !== 0
-                  ? (
-                    <div className='flex flex-col gap-4 overflow-y-scroll scroll-smooth no-scrollbar pb-4'>
-                      {pedido.map(({ id, nombre, precio, cantidad }, index) => (
-                        <ProductoPedido
-                          key={index}
-                          id={id}
-                          nombre={nombre}
-                          precio={precio}
-                          cantidad={cantidad}
-                          modalQuitar={setMostrarModalQuitar}
-                        />
-                      ))}
-                    </div>
-                  )
-                  : (
-                    <div className='w-full p-3 border-l-2 border-blue-700 bg-blue-100 flex items-center gap-3'>
-                      <Icon icon='material-symbols:info-rounded' width='40' className='text-blue-700' />
-                      <span className='text-blue-700 text-xl font-semibold'>Selecciona un producto para agregar al pedido</span>
-                    </div>
-                  )
-              }
+        <div className='flex-1 min-h-0 flex'>
+          {/* Productos disponibles del menú */}
+          <section className='flex-1 min-w-0 px-5 pt-5 xl:px-8 xl:pt-7 flex flex-col gap-4 xl:gap-5'>
+            <div className='flex items-baseline justify-between gap-4'>
+              <h1 className='titulo text-4xl xl:text-[44px]'>Menú de hoy</h1>
+              <span className='text-base xl:text-lg text-suave'>Toca un producto para agregarlo</span>
             </div>
 
-            <button
-              disabled={pedido.length <= 0}
-              className={
-                `p-4 rounded-2xl flex items-center gap-4 transition-colors 
-                ${pedido.length <= 0
-                  ? 'bg-slate-400 cursor-not-allowed'
-                  : 'bg-[#26723B] hover:bg-[#005f1b] cursor-pointer'}`
-              }
-              onClick={() => setMostrarModalFinalizar(true)}
-            >
-              <Icon icon='material-symbols:save-rounded' width='32' className='text-white' />
-              <span className='text-white text-2xl font-semibold'>Guardar pedido</span>
-            </button>
+            <div className='flex-1 min-h-0 overflow-y-auto scroll-smooth no-scrollbar -mx-1 px-1 pt-1 pb-5 xl:pb-7'>
+              <div className='grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-5'>
+                {productos?.map((p) => (
+                  <MenuCard
+                    key={p.id}
+                    nombre={p.producto}
+                    precio={p.valor}
+                    imagen={p.img}
+                    cantidad={pedido.find(el => el.id === p.id)?.cantidad ?? 0}
+                    onAgregar={() => agregarProducto(p)}
+                    onRestar={() => restarProducto(p.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Pedido actual del usuario */}
+          <aside className='w-85 xl:w-105 shrink-0 bg-white border-l border-linea p-5 xl:p-7 flex flex-col gap-4 xl:gap-5'>
+            <div className='flex items-baseline justify-between'>
+              <h2 className='titulo text-3xl xl:text-4xl'>Tu pedido</h2>
+              {unidades > 0 && (
+                <span className='text-base text-suave'>
+                  {unidades} {unidades === 1 ? 'producto' : 'productos'}
+                </span>
+              )}
+            </div>
+
+            {pedido.length > 0
+              ? (
+                <ul className='flex-1 min-h-0 overflow-y-auto no-scrollbar flex flex-col'>
+                  {pedido.map(({ id, nombre, precio, cantidad }) => (
+                    <ProductoPedido
+                      key={id}
+                      id={id}
+                      nombre={nombre}
+                      precio={precio}
+                      cantidad={cantidad}
+                      modalQuitar={setMostrarModalQuitar}
+                    />
+                  ))}
+                </ul>
+                )
+              : (
+                <div className='flex-1 flex flex-col items-center justify-center gap-3 text-center text-suave px-6'>
+                  <Info size={40} strokeWidth={1.8} aria-hidden='true' />
+                  <span className='text-lg font-semibold'>Agrega productos del menú para armar tu pedido</span>
+                </div>
+                )}
+
+            <div className='flex flex-col gap-3 xl:gap-4 pt-4 xl:pt-5 border-t-2 border-tinta'>
+              <div className='flex items-baseline justify-between'>
+                <span className='text-lg xl:text-xl font-semibold'>Total</span>
+                <span className='text-[40px] xl:text-5xl leading-none font-extrabold' style={{ fontStretch: '85%' }}>
+                  ${formatPrecio(total)}
+                </span>
+              </div>
+              <button
+                type='button'
+                disabled={pedido.length === 0}
+                onClick={() => setMostrarModalFinalizar(true)}
+                className='h-16 xl:h-19 rounded-xl bg-brangus text-white text-xl xl:text-2xl font-bold flex items-center justify-center gap-3 cursor-pointer hover:bg-brangus-oscuro transition-colors disabled:bg-tenue disabled:cursor-not-allowed'
+              >
+                Confirmar pedido
+                <ArrowRight size={24} strokeWidth={2.4} aria-hidden='true' />
+              </button>
+            </div>
           </aside>
-        </section>
+        </div>
       </main>
 
       {/* Modal para quitar un producto del pedido */}
       <ModalConfirmacion
         mostrar={mostrarModalQuitar.mostrar}
         setMostrar={setMostrarModalQuitar}
-        mensaje={`¿Desea quitar ${mostrarModalQuitar.productoNombre} de su pedido?`}
+        mensaje={`¿Quitar ${mostrarModalQuitar.productoNombre} de tu pedido?`}
         accion={() => quitarProducto(mostrarModalQuitar.productoId)}
-      />
-
-      {/* Modal para añadir un producto al pedido y seleccionar una cantidad */}
-      <ModalCantidad
-        mostrar={mostrarModalCantidad.mostrar}
-        setMostrar={setMostrarModalCantidad}
-        producto={mostrarModalCantidad.producto}
-        accion={añadirProducto}
       />
 
       {/* Modal para finalizar el pedido */}
       <ModalConfirmacion
         mostrar={mostrarModalFinalizar}
         setMostrar={setMostrarModalFinalizar}
-        mensaje='¿Desea finalizar su pedido?'
+        mensaje={`¿Confirmas tu pedido por $${formatPrecio(total)}?`}
         accion={() => {
           setMostrarModalFinalizar(false)
           guardarPedido()

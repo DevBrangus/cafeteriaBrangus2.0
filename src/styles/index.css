@@ -1,13 +1,26 @@
 @import "tailwindcss";
 
+/* Paleta y tipografía del casino */
+@theme {
+  --font-sans: 'Archivo', system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  --color-brangus: #C60000;
+  --color-brangus-oscuro: #8F0000;
+  --color-tinta: #1B1714;
+  --color-suave: #5E5650;
+  --color-tenue: #8A817A;
+  --color-fondo: #F3F1EE;
+  --color-panel: #E6E1DC;
+  --color-linea: #E2DCD6;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme    : light;
-  color           : #213547;
-  background-color: #ffffff;
+  color           : var(--color-tinta);
+  background-color: var(--color-fondo);
 
   font-synthesis         : none;
   text-rendering         : optimizeLegibility;
@@ -19,27 +32,42 @@
   scrollbar-color: #8f8f8f transparent;
 }
 
-a {
-  font-weight    : 500;
-  color          : #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
 body {
-  margin     : 0;
-  display    : flex;
-  place-items: center;
-  min-width  : 320px;
-  min-height : 100vh;
+  margin    : 0;
+  min-width : 320px;
+  min-height: 100dvh;
 }
 
-h1 {
-  font-size  : 3.2em;
-  line-height: 1.1;
+/* Títulos condensados en mayúscula */
+.titulo {
+  font-stretch  : 75%;
+  font-weight   : 800;
+  line-height   : 0.95;
+  text-transform: uppercase;
+}
+
+/* Alertas */
+@keyframes alerta-entrada {
+  from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes alerta-salida {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-12px) scale(0.97); }
+}
+
+@keyframes alerta-barra {
+  from { transform: scaleX(var(--desde, 1)); }
+  to   { transform: scaleX(0); }
+}
+
+.alerta-entrada { animation: alerta-entrada 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.alerta-salida  { animation: alerta-salida 250ms ease-in both; }
+.alerta-barra   { animation-name: alerta-barra; animation-timing-function: linear; animation-fill-mode: both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .alerta-entrada, .alerta-salida { animation-duration: 1ms; }
 }
 
 .no-scrollbar::-webkit-scrollbar {

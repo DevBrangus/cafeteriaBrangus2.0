@@ -28,7 +28,7 @@ function ModalCantidad ({
           }}
           className='absolute top-0 left-0 w-screen h-screen bg-[#000000aa] grid place-content-center'
         >
-          <section className='bg-white rounded-2xl flex flex-col gap-4 w-[440px]'>
+          <section className='bg-white rounded-xl flex flex-col gap-4 w-110'>
             <header className='flex items-center justify-between p-4 border-b border-slate-300'>
               <span>Cantidad de {producto.nombre} a pedir</span>
               <div className='rounded-full hover:bg-slate-200 transition-colors cursor-pointer p-1 grid place-content-center' onClick={() => setMostrar(false)}>
@@ -53,7 +53,7 @@ function ModalCantidad ({
                 htmlFor='cantidad'
                 className='
                   absolute ml-8 px-1 left-0 bg-white text-gray-500 text-sm transition-all duration-200
-                  peer-focus:top-[-8px] top-[-8px] peer-placeholder-shown:top-3.5
+                  peer-focus:-top-2 -top-2 peer-placeholder-shown:top-3.5
                   peer-placeholder-shown:text-base
                   peer-placeholder-shown:text-gray-500
                   peer-focus:text-sm peer-focus:text-violet-500
@@ -78,7 +78,7 @@ function ModalCantidad ({
               </button>
               <button
                 type='button'
-                className='flex-1 py-2 bg-[#C60000] text-white text-2xl font-semibold rounded-xl cursor-pointer hover:bg-[#910000] transition-colors'
+                className='flex-1 py-2 bg-brangus text-white text-2xl font-semibold rounded-xl cursor-pointer hover:bg-[#910000] transition-colors'
                 onClick={() => setMostrar(false)}
               >
                 Cancelar

@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { toast } from '../utils/alertas'
 
 function useAutenticar({ menuId }) {
   const formRef = useRef(null)
@@ -8,7 +8,7 @@ function useAutenticar({ menuId }) {
   // Hook de navegar entre las paginas
   const navigate = useNavigate()
 
-  const URL = 'https://carnesbrangus.com/casino2/authentication/authenticate.php?case=1'
+  const URL = 'https://carnesbrangus.com/casino/authentication/authenticate.php?case=1'
 
   const validarUsuario = async (e) => {
     e.preventDefault()
@@ -28,11 +28,7 @@ function useAutenticar({ menuId }) {
       // Si la respuesta es exitosa redirige a la vista de pedidos
       // De lo contrario, muestra una notificación de error
       if (response.success) {
-        toast('Usuario validado exitosamente', {
-          type: 'success'
-        })
-
-        localStorage.setItem("usuario", JSON.stringify(response.data));
+        sessionStorage.setItem("usuario", JSON.stringify(response.data));
 
         navigate(
           '/pedido',
