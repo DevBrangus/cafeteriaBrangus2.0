@@ -15,7 +15,7 @@ import { Check, House } from 'lucide-react'
 import logo from '../assets/logo.png'
 
 // Segundos antes de volver solo al inicio
-const SEGUNDOS = 10
+const SEGUNDOS = 5
 
 // Formatea un numero para añadir puntos de miles
 const formatPrecio = (precio) => Number(precio).toLocaleString('es-CO')
